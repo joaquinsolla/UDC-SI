@@ -1,0 +1,53 @@
+% Se inicializan las bases de datos  
+db_Inputs = xlsread('SI.xlsx','Entradas RNA')'; 
+db_Targets = xlsread('SI.xlsx','Salidas RNA')'; 
+
+%Arquitecturas
+s1 = [4];
+s2 = [8];
+s3 = [16];
+d1 = [4 4];
+d2 = [4 8];
+d3 = [8 4];
+
+% Dos redes de una capa activa 
+rna1 = patternnet(s1); 
+rna1.trainParam.showWindow = false; 
+[rna1 tr1] = train(rna1, db_Inputs, db_Targets); 
+%resultados rna1
+tr1.best_epoch
+InputsTest1 = db_Inputs(:,tr1.testInd);
+TargetsTest1 = db_Targets(:,tr1.testInd);
+OutputsTest1 = sim(rna1, InputsTest1);
+precisionTest1 = 1-confusion(TargetsTest1, OutputsTest1)
+
+rna2 = patternnet(s2); 
+rna2.trainParam.showWindow = false; 
+[rna2 tr2] = train(rna2, db_Inputs, db_Targets);
+%resultados rna2
+tr2.best_epoch
+InputsTest2 = db_Inputs(:,tr2.testInd);
+TargetsTest2 = db_Targets(:,tr2.testInd);
+OutputsTest2 = sim(rna2, InputsTest2);
+precisionTest2 = 1-confusion(TargetsTest2, OutputsTest2)
+
+% Dos redes de dos capas activas 
+rna3 = patternnet(d1); 
+rna3.trainParam.showWindow = false; 
+[rna3 tr3] = train(rna3, db_Inputs, db_Targets); 
+%resultados rna3
+tr3.best_epoch
+InputsTest3 = db_Inputs(:,tr3.testInd);
+TargetsTest3 = db_Targets(:,tr3.testInd);
+OutputsTest3 = sim(rna3, InputsTest3);
+precisionTest3 = 1-confusion(TargetsTest3, OutputsTest3)
+
+rna4 = patternnet(d2); 
+rna4.trainParam.showWindow = false; 
+[rna4 tr4] = train(rna4, db_Inputs, db_Targets); 
+%resultados rna4
+tr4.best_epoch
+InputsTest4 = db_Inputs(:,tr4.testInd);
+TargetsTest4 = db_Targets(:,tr4.testInd);
+OutputsTest4 = sim(rna4, InputsTest4);
+precisionTest4 = 1-confusion(TargetsTest4, OutputsTest4)

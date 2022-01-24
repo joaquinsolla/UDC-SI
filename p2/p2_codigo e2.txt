@@ -1,0 +1,80 @@
+% Se inicializan las bases de datos  
+db_Inputs = xlsread('SI.xlsx','Entradas RNA')'; 
+db_Targets = xlsread('SI.xlsx','Salidas RNA')'; 
+
+% Arquitecturas
+s1 = [4];
+s2 = [8];
+s3 = [16];
+s4 = [32];
+s5 = [64];
+d1 = [4 4];
+d2 = [4 8];
+d3 = [8 4];
+d4 = [8 8];
+d5 = [16 16];
+
+arqsS = [s1; s2; s3; s4; s5];
+arqsD = [d1; d2; d3; d4; d5];
+mediasprecision = [];
+desviacionestipicas = []; 
+
+% Entrenamiento con arquitecturas simples 
+for i=1:5,
+	precisionEntrenamiento = [];
+	precisionValidacion = [];
+	precisionTest = [];
+
+	for j=1:50,
+		rna = patternnet(arqsS(i,:));
+		rna.trainParam.showWindow = false;
+		[rna tr] = train(rna, db_Inputs, db_Targets);
+		Ouputs = sim(rna, db_Inputs);
+		precisionEntrenamiento(end+1) = 1-confusion(db_Targets(:,tr.trainInd),Ouputs(:,tr.trainInd));
+		precisionValidacion(end+1) = 1-confusion(db_Targets(:,tr.valInd),Ouputs(:,tr.valInd));
+		precisionTest(end+1) = 1-confusion(db_Targets(:,tr.testInd), Ouputs(:,tr.testInd));
+	end;
+
+	mediasprecision(end+1) = mean(precisionTest);
+	desviacionestipicas(end+1) = std(precisionTest);
+end;
+
+% Entrenamiento con arquitecturas de dos capas
+for i=1:5,
+	precisionEntrenamiento = [];
+	precisionValidacion = [];
+	precisionTest = [];
+
+	for j=1:50,
+		rna = patternnet(arqsD(i,:));
+		rna.trainParam.showWindow = false;
+		[rna tr] = train(rna, db_Inputs, db_Targets);
+		Ouputs = sim(rna, db_Inputs);
+		precisionEntrenamiento(end+1) = 1-confusion(db_Targets(:,tr.trainInd),Ouputs(:,tr.trainInd));
+		precisionValidacion(end+1) = 1-confusion(db_Targets(:,tr.valInd),Ouputs(:,tr.valInd));
+		precisionTest(end+1) = 1-confusion(db_Targets(:,tr.testInd), Ouputs(:,tr.testInd));
+	end;
+
+	mediasprecision(end+1) = mean(precisionTest);
+	desviacionestipicas(end+1) = std(precisionTest);
+end;
+
+% Muestra de resultados
+precision_desviaciontipica = [];
+
+for i=1:10,
+	precision_desviaciontipica = [precision_desviaciontipica;mediasprecision(i), desviacionestipicas(i)];
+end;
+precision_desviaciontipica
+
+% Gráfica 
+subplot(2,1,1)
+plot(mediasprecision, '--g')
+%axis([1 10 0 1])
+title("Precision")
+xlabel("Arquitectura (1-10)")
+subplot(2,1,2)
+plot(desviacionestipicas, 'r')
+%axis([1 10 0 1])
+title("Desviacion tipica")
+xlabel("Arquitectura (1-10)")
